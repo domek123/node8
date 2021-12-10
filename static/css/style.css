@@ -1,0 +1,23 @@
+.all{
+    display: flex;
+    justify-content: space-evenly;
+}
+.all > div{
+    width: auto
+}
+.add{
+    background-color: blue;
+    color:white;
+    border-radius: 10px;
+    height: 30px;
+}
+.del{
+    background-color: red;
+    color:white;
+    border-radius: 10px;
+    height: 30px;
+}
+.msg{
+    color:blue;
+    font-weight: bold;
+}

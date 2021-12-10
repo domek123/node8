@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="all">
+        <div>
+            <h2>Bieżąca baza: / <span id="data" class="msg">nie wybrano</span></h2>
+            <div>
+                <button id="addData" class="add">nowa baza danych</button>
+                <button id="delData" class="del">Usun bieżącą</button>
+            </div>
+            <div>
+                <ul id="showData">
+
+                </ul>
+            </div>
+        </div>
+        <div>
+            <h2>Bieżąca kolekcja: / <span id="coll" class="msg">nie wybrano</span></h2>
+            <div>
+                <button id="addColl" class="add">nowa kolekcja</button>
+                <button id="delColl" class="del">Usun bieżącą</button>
+            </div>
+            <div>
+                <ul id="showColl">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+<script>
+    const datas = document.getElementById("data")
+    const addData = document.getElementById("addData")
+    const delData = document.getElementById("delData")
+    const showData = document.getElementById("showData")
+
+    const coll = document.getElementById("coll")
+    const addColl = document.getElementById("addColl")
+    const delColl = document.getElementById("delColl")
+    const showCol = document.getElementById("showColl")
+
+    let server = prompt("podaj adres bazy danych")
+    let chData = ""
+    let chColl = ""
+
+    fetchShow()
+    addData.addEventListener("click", function () {
+        fetchAddData()
+    })
+    delData.addEventListener("click", function () {
+        if (chData != "") {
+            fetchDelData()
+        }
+
+    })
+    addColl.addEventListener("click", function () {
+        if (chData != "") {
+            fetchAddColl()
+        }
+
+    })
+    delColl.addEventListener("click", function () {
+        if (chData != "" && chColl != "") {
+            fetchDelColl()
+        }
+
+    })
+
+
+
+    function fetchShow() {
+
+        const body = JSON.stringify({ s: server })
+
+        const headers = { "Content-Type": "application/json" }
+
+        fetch("/handleShowData", { method: "post", body, headers })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data[0])
+                console.log(data[0] == "error")
+                if (data[0] == "error") {
+                    server = prompt("podaj baze danych")
+                    fetchShow()
+                }
+                else {
+                    data.forEach(e => {
+                        const li = document.createElement("li")
+                        li.innerText = e.name
+                        showData.appendChild(li)
+                        li.addEventListener("click", function () {
+                            chData = e.name
+                            datas.innerText = chData
+                            showColl(e.name)
+                        })
+
+                    })
+
+                }
+            })
+    }
+    function showColl(d) {
+        const body = JSON.stringify({ s: server, d: d })
+
+        const headers = { "Content-Type": "application/json" }
+
+        fetch("/handleShowColl", { method: "post", body, headers })
+            .then(response => response.json())
+            .then(data => {
+                showCol.innerHTML = ""
+                data.forEach(e => {
+                    const li = document.createElement("li")
+                    li.innerText = e
+                    showCol.appendChild(li)
+                    li.addEventListener("click", function () {
+                        chColl = e
+                        coll.innerText = chColl
+                    })
+
+                })
+            })
+    }
+
+
+
+
+    function fetchAddData() {
+        let con = prompt("podaj nazwe bazy")
+        const body = JSON.stringify({ s: server, d: con })
+
+        const headers = { "Content-Type": "application/json" }
+
+        fetch("/handleAddData", { method: "post", body, headers })
+    }
+
+    function fetchDelData() {
+        const body = JSON.stringify({ s: server, d: chData })
+
+        const headers = { "Content-Type": "application/json" }
+
+        fetch("/handleDelData", { method: "post", body, headers })
+    }
+
+
+
+
+    function fetchAddColl() {
+        const col = prompt("podaj nazwe kolumny")
+
+        const body = JSON.stringify({ s: server, d: chData, c: col })
+
+        const headers = { "Content-Type": "application/json" }
+
+        fetch("/handleAddColl", { method: "post", body, headers })
+    }
+
+
+    function fetchDelColl() {
+        console.log(chColl)
+        const body = JSON.stringify({ s: server, d: chData, c: chColl })
+
+        const headers = { "Content-Type": "application/json" }
+
+        fetch("/handleDelColl", { method: "post", body, headers })
+    }
+
+</script>
+
+</html>
